@@ -22,3 +22,10 @@ type Comments struct {
 	Text        string `json:"text" db:"text"`
 	IsModerated bool   `json:"is_moderated" db:"is_moderated"`
 }
+
+//News
+
+type News struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+}

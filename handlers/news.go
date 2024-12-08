@@ -81,7 +81,7 @@ func fetchComments() []models.Comment {
 }
 
 // Обработчик запросов
-func newsHandler(w http.ResponseWriter, r *http.Request) {
+func NewsHandler(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	searchQuery := queryParams.Get("s")
 	page := queryParams.Get("page")

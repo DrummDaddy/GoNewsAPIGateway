@@ -34,5 +34,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Ошибка запуска сервера:", err)
 	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/news", NewsHandler)
+
+	// Оборачивание обработчиков в middleware
+	chain := RequestIDMiddleware(LoggingMiddleware(mux))
+
+	http.ListenAndServe(":8080", chain)
 
 }

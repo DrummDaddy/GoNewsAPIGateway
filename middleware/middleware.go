@@ -9,7 +9,7 @@ import (
 )
 
 // Middleware для чтения и передачи сквозного идентификатора
-func requestIDMiddleware(next http.Handler) http.Handler {
+func RequestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requsetID := r.Header.Get("X-Request-ID")
 		if requsetID == "" {
@@ -36,7 +36,7 @@ func generateNewRequestID() string {
 }
 
 // Middleware для логирования запросов.
-func loggingMiddleware(next http.Handler) http.Handler {
+func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 

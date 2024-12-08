@@ -3,7 +3,10 @@ package handlers
 import (
 	"APIGateway/models"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"sync"
 )
 
@@ -75,4 +78,39 @@ func fetchNews() models.News {
 
 func fetchComments() []models.Comment {
 	return []models.Comment{{NewsID: 1, Text: "Great article!"}}
+}
+
+// Обработчик запросов
+func newsHandler(w http.ResponseWriter, r *http.Request) {
+	queryParams := r.URL.Query()
+	searchQuery := queryParams.Get("s")
+	page := queryParams.Get("page")
+
+	// Подготавливаем запрос для агрегатора, добавляя новые параметры
+	aggregatorURL := fmt.Sprintf("http://aggregator-service/news?s=%s&page=%s",
+		url.QueryEscape(searchQuery), url.QueryEscape(page))
+
+	// Выполняем запрос к агрегатору
+	resp, err := http.Get(aggregatorURL)
+	if err != nil {
+		http.Error(w, "Error reaching the news aggregator", http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Перенаправление ответа от агрегатора клиенту
+	if resp.StatusCode != http.StatusOK {
+		http.Error(w, "Error from aggregator", http.StatusBadGateway)
+		return
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, "Error reading response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(resp.StatusCode)
+	w.Write(body)
 }

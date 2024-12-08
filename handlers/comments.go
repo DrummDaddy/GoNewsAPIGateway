@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"APIGateway/models"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -12,6 +14,12 @@ func AddComment(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		http.Error(w, "Ошибка при деодировании комментария", http.StatusBadRequest)
+		return
+	}
+
+	//Вызов сервиса цензурирования
+	if err := checkCommentWithCensorshipService(comment.Content); err != nil {
+		http.Error(w, "Comment failed validation", http.StatusBadRequest)
 		return
 	}
 
@@ -31,4 +39,22 @@ func GetCommentsByNewsID(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(comments)
+}
+
+func checkCommentWithCensorshipService(content string) error {
+	reqBody, err := json.Marshal(map[string]string{"comment": content})
+	if err != nil {
+		return err
+	}
+
+	resp, err := http.Post("http://localhost:8080/validate", "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("comment was not validated")
+	}
+
+	return nil
 }

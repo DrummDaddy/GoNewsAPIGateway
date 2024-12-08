@@ -7,4 +7,5 @@ type Comment struct {
 	ParentID    *int   `json:"parent_id,omitempty" db:"parent_id"`
 	Text        string `json:"text" db:"text"`
 	IsModerated bool   `json:"is_moderated" db:"is_moderated"`
+	Content     string `json:"content" db: "content"`
 }

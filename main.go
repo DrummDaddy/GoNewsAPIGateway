@@ -21,12 +21,16 @@ func main() {
 	//Создаем новый маршрутизатор
 	r := mux.NewRouter()
 
+	// Добавляем middleware
+	r.Use(handlers.LoggingMiddleware)
+
 	// Определяем маршруты
 	r.HandleFunc("/news", handlers.GetNewsList).Methods("GET")
 	r.HandleFunc("/news/filter", handlers.FiltersNews).Methods("GET")
 	r.HandleFunc("/news/{id}", handlers.GetNewsDetails).Methods("GET")
 	r.HandleFunc("/comments", handlers.AddComment).Methods("POST")
 	r.HandleFunc("/news/{id}/comments", handlers.GetCommentsByNewsID).Methods("GET")
+	r.HandleFunc("/news", handlers.GetNewsList).Methods("GET")
 
 	//Запускаем сервер
 	log.Println("Запуск сервера на http://localhost:8080/")
